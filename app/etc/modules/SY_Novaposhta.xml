@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <SY_Novaposhta>
+            <active>true</active>
+            <codePool>community</codePool>
+        </SY_Novaposhta>
+    </modules>
+</config>

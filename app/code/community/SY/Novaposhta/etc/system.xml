@@ -1,0 +1,241 @@
+<?xml version="1.0"?>
+<config>
+    <sections>
+        <carriers>
+            <groups>
+                <sy_novaposhta translate="label" module="sy_novaposhta">
+                    <label>Novaposhta</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>0</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Carrier Name</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <sort_order translate="label">
+                            <label>Sort Order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                        <sallowspecific translate="label">
+                            <label>Ship to Applicable Countries</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>40</sort_order>
+                            <frontend_class>shipping-applicable-country</frontend_class>
+                            <source_model>adminhtml/system_config_source_shipping_allspecificcountries</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sallowspecific>
+                        <specificcountry translate="label">
+                            <label>Ship to Specific Countries</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <sort_order>50</sort_order>
+                            <source_model>adminhtml/system_config_source_country</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                        </specificcountry>
+                        <specificerrmsg translate="label">
+                            <label>Displayed Error Message</label>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </specificerrmsg>
+                        <api_key translate="label">
+                            <label>API key</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </api_key>
+                        <sender_city translate="label">
+                            <label>Sender City</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>sy_novaposhta/system_config_city</source_model>
+                            <sort_order>80</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </sender_city>
+                        <sender_warehouse translate="label">
+                            <label>Sender Warehouse</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>sy_novaposhta/system_config_warehouse</source_model>
+                            <sort_order>90</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </sender_warehouse>
+                        <default_sender translate="label">
+                            <label>Default Sender</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>sy_novaposhta/system_config_default_sender</source_model>
+                            <sort_order>91</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </default_sender>
+                        <default_agent translate="label">
+                            <label>Default Agent</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>sy_novaposhta/system_config_default_agent</source_model>
+                            <sort_order>92</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </default_agent>
+                        <default_description translate="label">
+                            <label>Default Description</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>93</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </default_description>
+                        <default_payment_method translate="label">
+                            <label>Default Payment Method</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>sy_novaposhta/system_config_default_payment</source_model>
+                            <sort_order>94</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </default_payment_method>
+                        <default_payer_type translate="label">
+                            <label>Default Payer Type</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>sy_novaposhta/system_config_default_payer</source_model>
+                            <sort_order>95</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </default_payer_type>
+                        <default_cargo_type translate="label">
+                            <label>Default Cargo Type</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>sy_novaposhta/system_config_default_cargo</source_model>
+                            <sort_order>96</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </default_cargo_type>
+                        <default_backward_delivery_payer_type translate="label">
+                            <label>Default Backward Delivery Payer Type</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>sy_novaposhta/system_config_default_backward_payer</source_model>
+                            <sort_order>97</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </default_backward_delivery_payer_type>
+                        <default_backward_delivery_cargo_type translate="label">
+                            <label>Default Backward Delivery Cargo Type</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>sy_novaposhta/system_config_default_backward_cargo</source_model>
+                            <sort_order>98</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </default_backward_delivery_cargo_type>
+                        <default_width translate="label,comment">
+                            <label>Default Width</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>Total (sm), min 5</comment>
+                            <sort_order>99</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </default_width>
+                        <default_length translate="label,comment">
+                            <label>Default Length</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>Total (sm), min 5</comment>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </default_length>
+                        <default_height translate="label,comment">
+                            <label>Default Height</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>Total (sm), min 5</comment>
+                            <sort_order>101</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </default_height>
+                        <cost_control translate="label">
+                            <label>Cost Control</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>102</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </cost_control>
+                        <on_air translate="label,comment">
+                            <label>On Air</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <comment>Cities and Warehouses direct from API</comment>
+                            <sort_order>103</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </on_air>
+                        <update_cron translate="label,comment">
+                            <label>Update Cron for Cities and Warehouses</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>Only if 'On Air' mode is disabled</comment>
+                            <sort_order>104</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </update_cron>
+                        <complete_status translate="label">
+                            <label>Complete status</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>150</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </complete_status>
+                        <developer translate="label">
+                            <label>Developer</label>
+                            <frontend_type>text</frontend_type>
+                            <frontend_model>sy_novaposhta/adminhtml_system_config_developer_renderer</frontend_model>
+                            <sort_order>999</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </developer>
+                    </fields>
+                </sy_novaposhta>
+            </groups>
+        </carriers>
+    </sections>
+</config>

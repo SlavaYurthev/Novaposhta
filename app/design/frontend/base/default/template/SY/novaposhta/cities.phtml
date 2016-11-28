@@ -1,0 +1,18 @@
+<?php
+/**
+ * Nova Poshta API 2.0
+ * 
+ * @author Slava Yurthev
+ */
+?>
+<?php $helper = Mage::helper('sy_novaposhta'); ?>
+<?php $group = 'billing'; ?>
+<?php $id = ''; ?>
+<?php if($helper->getStoreConfig('api_key') !== false && $helper->getStoreConfig('active') == "1"): ?>
+	<select id="<?php echo $id; ?>" class="select" name="<?php echo $group; ?>[city]">
+		<option></option>
+		<?php foreach($helper->getCities() as $city): ?>
+			<option value="<?php echo htmlentities($city['Description']); ?>"><?php echo $city['Description']; ?></option>
+		<?php endforeach; ?>
+	</select>
+<?php endif; ?>

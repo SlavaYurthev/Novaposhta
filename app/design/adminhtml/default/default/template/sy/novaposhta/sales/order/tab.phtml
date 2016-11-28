@@ -1,0 +1,455 @@
+<?php
+/**
+ * Nova Poshta API 2.0
+ * 
+ * @author Slava Yurthev
+ */
+ ?>
+<?php $_order = $this->getOrder(); ?>
+<?php $cities = $this->getCities(); ?>
+<?php $helper = Mage::helper('sy_novaposhta'); ?>
+<?php $recepientCityRef = $this->getRecepientCityRef(); ?>
+<?php $form = json_decode($_order->getNovaposhtaFormData()); ?>
+<div class="entry-edit">
+    <form id="novaposhta_form" method="post" action="<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/novaposhta_sync/update"); ?>">
+        <input type="hidden" name="form_key" value="<?php echo Mage::getSingleton('core/session')->getFormKey() ?>" />
+        <input type="hidden" name="order_id" value="<?php echo $_order->getId(); ?>">
+        <?php if($_order->getNovaposhtaBarcode()): ?>
+            <div class="entry-edit-head">
+                <h4 class="icon-head fieldset-legend"><?php echo $this->__("Declaration"); ?></h4>
+            </div>
+            <div class="fieldset">
+                <table class="form-list">
+                    <tr>
+                        <td class="label"><label><?php echo $this->__('№'); ?></label></td>
+                        <td class="value">
+                            <?php echo $_order->getNovaposhtaBarcode(); ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label"><label><?php echo $this->__('Status'); ?></label></td>
+                        <td class="value">
+                            <?php echo $_order->getNovaposhtaStatus(); ?>
+                        </td>
+                    </tr>
+                    <?php if($_order->getState() != Mage_Sales_Model_Order::STATE_COMPLETE): ?>
+                    <tr>
+                        <td class="label">&nbsp;</td>
+                        <td class="value">
+                            <button type="button" class="button" onclick="window.location.href='<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/novaposhta_sync/delete",array('order_id'=>$_order->getId())); ?>'"><span><span><?php echo $this->__('Delete'); ?></span></span></button>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                    <?php if($_order->getNovaposhtaRef()): ?>
+                        <tr>
+                            <td class="label">&nbsp;</td>
+                            <td class="value">
+                                <a type="button" class="button" href="https://my.novaposhta.ua/newOrder/index/Ref/<?php echo $_order->getNovaposhtaRef(); ?>" target="_blank"><span><span><?php echo $this->__('Edit'); ?></span></span></a>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </table>
+            </div>
+        <?php //else: ?>
+        <?php endif; ?>
+        <div class="entry-edit-head">
+            <h4 class="icon-head fieldset-legend"><?php echo $this->__("Sender"); ?></h4>
+        </div>
+        <div class="fieldset">
+            <table class="form-list">
+                <tr>
+                    <td class="label"><label for="sender"><?php echo $this->__('Sender'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <input type="hidden" id="sender_firstname" name="sender[Firstname]" value="">
+                        <input type="hidden" id="sender_lastname" name="sender[Lastname]" value="">
+                        <input type="hidden" id="sender_middlename" name="sender[Middlename]" value="">
+                        <input type="hidden" id="sender_ref" name="sender[Sender]" value="">
+                        <input type="hidden" id="sender_city" name="sender[CitySender]" value="">
+                        <select onchange="update_sender(this.options[this.selectedIndex])" id="sender" class="validate-select">
+                            <option value="" ref="" firstname="" lastname="" middlename=""></option>
+                            <?php foreach($helper->getSenders() as $key => $sender): ?>
+                                <?php //Zend_Debug::dump($sender); ?>
+                                <option value="<?php echo $key; ?>" ref="<?php echo @$sender['Ref']; ?>" firstname="<?php echo @$sender['Firstname']; ?>" lastname="<?php echo @$sender['Lastname']; ?>" middlename="<?php echo @$sender['Middlename']; ?>" city="<?php echo @$sender['City']; ?>" <?php if($form->sender->Sender == $sender['Ref']): ?>selected="selected"<?php elseif(!$form->sender->Sender && $helper->getStoreConfig('default_sender') == $sender['Ref']): ?>selected="selected"<?php endif; ?>><?php echo @$sender['Description']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <script type="text/javascript">
+                            update_sender = function(el){
+                                document.getElementById('sender_ref').value = el.getAttribute('ref');
+                                document.getElementById('sender_firstname').value = el.getAttribute('firstname');
+                                document.getElementById('sender_lastname').value = el.getAttribute('lastname');
+                                document.getElementById('sender_middlename').value = el.getAttribute('middlename');
+                                document.getElementById('sender_city').value = el.getAttribute('city');
+                            }
+                            update_sender(document.getElementById('sender').options[document.getElementById('sender').selectedIndex]);
+                        </script>
+                        <?php unset($selected); ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="contragent"><?php echo $this->__('Contact Sender'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <input type="hidden" id="contragent_ref" name="contragent[ContactSender]" value="">
+                        <input type="hidden" id="contragent_phones" name="contragent[SendersPhone]" value="">
+                        <select onchange="update_contragent(this.options[this.selectedIndex])" id="contragent" class="validate-select">
+                            <option value="" ref="" firstname="" lastname="" middlename=""></option>
+                            <?php foreach($helper->getContragents() as $key => $contragent): ?>
+                            	<?php //Zend_Debug::dump($contragent); ?>
+                                <option value="<?php echo $key; ?>" ref="<?php echo $contragent['Ref']; ?>" phone="<?php echo $contragent['Phones']; ?>" <?php if($form->contragent->ContactSender): ?>selected="selected"<?php elseif(!$form->contragent->ContactSender && $helper->getStoreConfig('default_agent') == $contragent['Ref']): ?>selected="selected"<?php endif; ?>><?php echo $contragent['Description']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <script type="text/javascript">
+                            update_contragent = function(el){
+                                document.getElementById('contragent_ref').value = el.getAttribute('ref');
+                                document.getElementById('contragent_phones').value = el.getAttribute('phone');
+                            }
+                            update_contragent(document.getElementById('contragent').options[document.getElementById('contragent').selectedIndex]);
+                        </script>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="entry-edit-head">
+            <h4 class="icon-head fieldset-legend"><?php echo $this->__("Recepient"); ?></h4>
+        </div>
+        <div class="fieldset">
+            <table class="form-list">
+                <tr>
+                    <td class="label"><label for="recepient_firstname"><?php echo $this->__('Firstname'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <input type="text" class="required-entry input-text" id="recepient_firstname" name="recepient[FirstName]" value="<?php if($form->recepient->FirstName): ?><?php echo $form->recepient->FirstName; ?><?php else: ?><?php echo $_order->getShippingAddress()->getFirstname(); ?><?php endif; ?>" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="recepient_lastname"><?php echo $this->__('Lastname'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <input type="text" class="required-entry input-text" id="recepient_lastname" name="recepient[LastName]" value="<?php if($form->recepient->LastName): ?><?php echo $form->recepient->LastName; ?><?php else: ?><?php echo $_order->getShippingAddress()->getLastname(); ?><?php endif; ?>" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="recepient_middlename"><?php echo $this->__('Middlename'); ?></label></td>
+                    <td class="value">
+                        <input type="text" class="required-entry input-text" id="recepient_middlename" name="recepient[MiddleName]" value="<?php if($form->recepient->MiddleName): ?><?php echo $form->recepient->MiddleName; ?><?php else: ?><?php echo $_order->getShippingAddress()->getMiddlename(); ?><?php endif; ?>" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label for="recepient_telephone"><?php echo $this->__('Telephone'); ?><span class="required">*</span></label>
+                    </td>
+                    <td class="value">
+                        <input type="text" class="required-entry validate-digits input-text" id="recepient_telephone" name="recepient[Phone]" value="<?php if($form->recepient->Phone): ?><?php echo $form->recepient->Phone; ?><?php else: ?><?php echo $_order->getShippingAddress()->getTelephone(); ?><?php endif; ?>" />
+                        <p class="comment"><?php echo $this->__('Example: %s','0666666666'); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="recepient_city"><?php echo $this->__('City'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <input type="hidden" id="recepient_city_hidden" name="recepient[City]" value="<?php if($form->recepient->City): ?><?php echo $form->recepient->City; ?><?php else: ?><?php echo $helper->findCity($_order->getShippingAddress()->getCity())['Description']; ?><?php endif; ?>">
+                        <select class="validate-select" class="select" id="recepient_city" onchange="updateCity(this.options[this.selectedIndex])">
+                            <option value=""></option>
+                            <?php foreach($cities as $city): ?>
+                                <option value="<?php echo $city['Description']; ?>" ref="<?php echo $city['Ref']; ?>" <?php if($form->recepient->City == $city['Description']): ?>selected="selected"<?php elseif(!$form->recepient->City && $recepientCityRef == $city['Ref']): ?>selected="selected"<?php endif; ?>><?php echo $city['Description']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="recepient_warehouse"><?php echo $this->__('Warehouse'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <select class="validate-select" id="recepient_warehouse" name="recepient[Warehouse]">
+                            <option value=""></option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <script type="text/javascript">
+                updateCity = function(el){
+                    document.getElementById('recepient_warehouse').innerHTML = '';
+                    document.getElementById('recepient_city_hidden').value = el.value;
+                    new Ajax.Request("<?php echo Mage::getUrl('novaposhta/ajax/warehouses'); ?>", {
+                        method: 'post',
+                        parameters: {
+                            ref: el.getAttribute('ref'),
+                            warehouse: <?php if($form->recepient->Warehouse): ?>"<?php echo $form->recepient->Warehouse; ?>"<?php else: ?>"<?php echo $_order->getNovaposhtaWarehouse(); ?>"<?php endif; ?>
+                        },
+                        onComplete: function(response) {
+                            document.getElementById('recepient_warehouse').innerHTML = response.responseText;
+                        }
+                    });
+                    new Ajax.Request("<?php echo Mage::getUrl('novaposhta/ajax/intervals'); ?>", {
+                        method: 'post',
+                        parameters: {
+                            ref: el.getAttribute('ref'),
+                            <?php if($form->info->TimeInterval): ?>
+                            selected: "<?php echo urlencode($form->info->TimeInterval); ?>"
+                            <?php endif; ?>
+                        },
+                        onComplete: function(response) {
+                            document.getElementById('info_date_time_at').innerHTML = response.responseText;
+                        }
+                    });
+                }
+                var selectCity = document.getElementById('recepient_city');
+                updateCity(selectCity.options[selectCity.selectedIndex]);
+            </script>
+        </div>
+        <div class="entry-edit-head">
+            <h4 class="icon-head fieldset-legend"><?php echo $this->__("Order"); ?></h4>
+        </div>
+        <div class="fieldset">
+            <table class="form-list">
+                <tr>
+                    <td class="label"><label for="info_increment_id"><?php echo $this->__('Increment Id'); ?></label></td>
+                    <td class="value">
+                        <input class="input-text" type="text" id="info_increment_id" name="info[InfoRegClientBarcodes]" value="<?php echo $_order->getIncrementId(); ?>" readonly="readonly">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="info_cost"><?php echo $this->__('Cost'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <input class="required-entry input-text" type="text" id="info_cost" name="info[Cost]" value="<?php if($form->info): ?><?php echo $form->info->Cost; ?><?php else: ?><?php echo $_order->getGrandTotal()+0; ?><?php endif; ?>">
+                    </td>
+                </tr>
+                <?php if(Mage::getStoreConfig('carriers/sy_novaposhta/cost_control') == "1"): ?>
+                    <tr>
+                        <td class="label"><label for="info_cost_control"><?php echo $this->__('Cost Control'); ?></label></td>
+                        <td class="value">
+                            <input class="input-text" type="text" id="info_cost_control" name="info[AfterpaymentOnGoodsCost]" value="<?php if($form->info): ?><?php echo $form->info->AfterpaymentOnGoodsCost; ?><?php else: ?><?php echo $_order->getGrandTotal()+0; ?><?php endif; ?>">
+                        </td>
+                    </tr>
+                <?php endif; ?>
+                <tr>
+                    <td class="label"><label for="info_seatsamount"><?php echo $this->__('Seats Amount'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <input class="required-entry input-text" type="text" id="info_seatsamount" name="info[SeatsAmount]" value="<?php if($form->info): ?><?php echo $form->info->SeatsAmount; ?><?php else: ?><?php echo $_order->getTotalQtyOrdered()+0; ?><?php endif; ?>">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="info_pucking_number"><?php echo $this->__('Pucking Number'); ?></label></td>
+                    <td class="value">
+                        <input class="input-text" type="text" id="info_pucking_number" name="info[PuckingNumber]" value="<?php if($form->info): ?><?php echo $form->info->PuckingNumber; ?><?php endif; ?>">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="info_description"><?php echo $this->__('Description'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <textarea class="required-entry input-text" id="info_description" name="info[Description]" style="height:auto;resize:none;" rows="5"><?php if($form->info): ?><?php echo $form->info->Description; ?><?php else: ?><?php echo Mage::getStoreConfig('carriers/sy_novaposhta/default_description'); ?><?php endif; ?></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="info_weight"><?php echo $this->__('Weight'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <input class="required-entry input-text" type="text" id="info_weight" name="info[Weight]" value="<?php if($form->info): ?><?php echo $form->info->Weight; ?><?php else: ?><?php echo $_order->getWeight()+0; ?><?php endif; ?>">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="info_volume"><?php echo $this->__('Volume General'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <input class="required-entry input-text" type="text" id="info_volume" name="info[VolumeGeneral]" value="<?php if($form->info): ?><?php echo $form->info->VolumeGeneral; ?><?php endif; ?>">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="info_description"><?php echo $this->__('Total Width'); ?></label></td>
+                    <td class="value">
+                        <input type="text" class="required-entry input-text" id="info_width" name="info[Width]" value="<?php if($form->info): ?><?php echo $form->info->Width; ?><?php else: ?><?php echo Mage::getStoreConfig('carriers/sy_novaposhta/default_width'); ?><?php endif; ?>">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="info_description"><?php echo $this->__('Total Height'); ?></label></td>
+                    <td class="value">
+                        <input type="text" class="required-entry input-text" id="info_width" name="info[Height]" value="<?php if($form->info): ?><?php echo $form->info->Height; ?><?php else: ?><?php echo Mage::getStoreConfig('carriers/sy_novaposhta/default_height'); ?><?php endif; ?>">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="info_description"><?php echo $this->__('Total Length'); ?></label></td>
+                    <td class="value">
+                        <input type="text" class="required-entry input-text" id="info_width" name="info[Length]" value="<?php if($form->info): ?><?php echo $form->info->Length; ?><?php else: ?><?php echo Mage::getStoreConfig('carriers/sy_novaposhta/default_length'); ?><?php endif; ?>">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="entry-edit-head">
+            <h4 class="icon-head fieldset-legend"><?php echo $this->__("Delivery"); ?></h4>
+        </div>
+        <div class="fieldset">
+            <table class="form-list">
+                <tr>
+                    <td class="label"><label for="info_servicetype"><?php echo $this->__('Service Type'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <select class="validate-select" id="info_servicetype" name="info[ServiceType]">
+                            <option value=""></option>
+                            <?php foreach ($helper->getServiceTypes() as $serviceType): ?>
+                                <option value="<?php echo $serviceType['Ref']; ?>" <?php if($form->info->ServiceType == $serviceType['Ref']): ?>selected="selected"<?php elseif(!$form->info->ServiceType && strpos($_order->getShippingMethod(), $serviceType['Ref'])): ?>selected="selected"<?php endif; ?>><?php echo $serviceType['Description']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="info_paymentmethod"><?php echo $this->__('Payment Method'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <select class="validate-select" id="info_paymentmethod" name="info[PaymentMethod]">
+                            <option value=""></option>
+                            <?php foreach ($helper->getPaymentForms() as $paymentForm): ?>
+                                <option value="<?php echo $paymentForm['Ref']; ?>" <?php if($form->info->PaymentMethod == $paymentForm['Ref']): ?>selected="selected"<?php elseif(!$form->info->PaymentMethod && $helper->getStoreConfig('default_payment_method') == $paymentForm['Ref']): ?>selected="selected"<?php endif; ?>><?php echo $paymentForm['Description']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="info_payertype"><?php echo $this->__('Payer Type'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <select class="validate-select" id="info_payertype" name="info[PayerType]">
+                            <option value="Sender" <?php if($form->info->PayerType == "Sender"): ?>selected="selected"<?php elseif(!$form->info->PayerType && $helper->getStoreConfig('default_payer_type') == 'Sender'): ?>selected="selected"<?php endif; ?>><?php echo $this->__('Sender'); ?></option>
+                            <option value="Recepient" <?php if($form->info->PayerType == "Recepient"): ?>selected="selected"<?php elseif(!$form->info->PayerType && $helper->getStoreConfig('default_payer_type') == 'Recepient'): ?>selected="selected"<?php endif; ?>><?php echo $this->__('Recepient'); ?></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="info_cargotype"><?php echo $this->__('Cargo Type'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <select class="validate-select" id="info_cargotype" name="info[CargoType]">
+                            <option value=""></option>
+                            <?php foreach ($helper->getCargoTypes() as $cargoType): ?>
+                                <option value="<?php echo $cargoType['Ref']; ?>" <?php if($form->info->CargoType == $cargoType['Ref']): ?>selected="selected"<?php elseif(!$form->info->CargoType && $helper->getStoreConfig('default_cargo_type') == $cargoType['Ref']): ?>selected="selected"<?php endif; ?>><?php echo $cargoType['Description']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+                </tr>
+                <?php 
+                    $_form = new Varien_Data_Form(array(
+                                'id'        => 'edit_form',
+                                'action'    => $this->getUrl('*/*/save'),
+                                'method'    => 'post'
+                            ));
+                    date_default_timezone_set('Europe/Kiev');
+                ?>
+                <tr>
+                    <?php 
+                        $element = new Varien_Data_Form_Element_Date(
+                                    array(
+                                        'name' => 'info[DateTime]',
+                                        'label' => Mage::helper('bundle')->__('Send Date'),
+                                        'tabindex' => 1,
+                                        'readonly'=>true,
+                                        'style'=>'width:auto !important;',
+                                        // 'time' =>   'true',
+                                        'image' => $this->getSkinUrl('images/grid-cal.gif'),
+                                        'format' => 'dd.MM.yyyy',
+                                        'value' => date("d.m.Y")
+                                    )
+                                );
+                        $element->setId('info_datetime');
+                        $element->setClass('required-entry');
+                        if($form->info){
+                        	$element->setValue($form->info->DateTime);
+                        }
+                        $element->setForm($_form);
+                    ?>
+                    <td class="label"><label for="info_datetime"><?php echo $this->__('Send Date'); ?><span class="required">*</span></label></td>
+                    <td class="value">
+                        <?php echo $element->getElementHtml(); ?>
+                    </td>
+                </tr>
+                <tr>
+                    <?php 
+                        $element = new Varien_Data_Form_Element_Date(
+                                    array(
+                                        'name' => 'info[PreferredDeliveryDate]',
+                                        'label' => Mage::helper('bundle')->__('Delivery Date'),
+                                        'tabindex' => 1,
+                                        'readonly'=>true,
+                                        // 'time' =>   'true',
+                                        'style'=>'width:auto !important;',
+                                        'image' => $this->getSkinUrl('images/grid-cal.gif'),
+                                        'format' => 'dd.MM.yyyy'
+                                    )
+                                );
+                        $element->setId('info_date_at');
+                        if($form->info){
+                        	$element->setValue($form->info->PreferredDeliveryDate);
+                        }
+                        $element->setForm($_form);
+                    ?>
+                    <td class="label"><label for="info_date_at"><?php echo $this->__('Delivary Date At'); ?></label></td>
+                    <td class="value">
+                        <?php echo $element->getElementHtml(); ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="info_date_time_at"><?php echo $this->__('Delivery Date At Interval'); ?></label></td>
+                    <td class="value">
+                        <select id="info_date_time_at" name="info[TimeInterval]">
+                            <option value=""></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="saturday_delivery"><?php echo $this->__('Saturday Delivery'); ?></label></td>
+                    <td class="value">
+                        <input type="checkbox" id="saturday_delivery" name="info[SaturdayDelivery]" value="1" <?php if($form->info->SaturdayDelivery == "1"): ?>checked="checked"<?php endif; ?>>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="entry-edit-head">
+            <h4 class="icon-head fieldset-legend"><?php echo $this->__("Backward Delivery"); ?></h4>
+        </div>
+        <div class="fieldset">
+            <table class="form-list">
+                <tr>
+                    <td class="label"><label for="info_backwarddeliverydata_payertype"><?php echo $this->__('Payer Type'); ?></label></td>
+                    <td class="value">
+                        <select class="validate-select" id="info_backwarddeliverydata_payertype" name="info[BackwardDeliveryData][PayerType]">
+                            <option value=""></option>
+                            <option value="Sender" <?php if($form->info->BackwardDeliveryData->PayerType == "Sender"):?>selected="selected"<?php elseif(!$form->info->BackwardDeliveryData->PayerType && $helper->getStoreConfig('default_backward_delivery_payer_type') == 'Sender'): ?>selected="selected"<?php endif; ?>><?php echo $this->__('Sender'); ?></option>
+                            <option value="Recepient" <?php if($form->info->BackwardDeliveryData->PayerType == "Recepient"):?>selected="selected"<?php elseif(!$form->info->BackwardDeliveryData->PayerType && $helper->getStoreConfig('default_backward_delivery_payer_type') == 'Recepient'): ?>selected="selected"<?php endif; ?>><?php echo $this->__('Recepient'); ?></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="info_backwarddeliverydata_cargoType"><?php echo $this->__('Cargo Type'); ?></label></td>
+                    <td class="value">
+                        <select class="validate-select" id="info_backwarddeliverydata_cargoType" name="info[BackwardDeliveryData][CargoType]">
+                            <option value=""></option>
+                            <!-- <option value="Money"><?php echo $this->__('Money'); ?></option> -->
+                            <?php foreach ($helper->getBackwardDeliveryCargoTypes() as $backwardDeliveryCargoType): ?>
+                                <option value="<?php echo $backwardDeliveryCargoType['Ref']; ?>"<?php if($form->info->BackwardDeliveryData->CargoType == $backwardDeliveryCargoType['Ref']): ?>selected="selected"<?php elseif(!$form->info->BackwardDeliveryData->CargoType && $helper->getStoreConfig('default_backward_delivery_cargo_type') == $backwardDeliveryCargoType['Ref']): ?>selected="selected"<?php endif; ?>><?php echo $backwardDeliveryCargoType['Description']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="info_backwarddeliverydata_redeliverystring"><?php echo $this->__('Redelivery String'); ?></label></td>
+                    <td class="value">
+                        <input class="input-text" id="info_backwarddeliverydata_redeliverystring" name="info[BackwardDeliveryData][RedeliveryString]" type="text" value="<?php if($form->info->BackwardDeliveryData->RedeliveryString): ?><?php echo $form->info->BackwardDeliveryData->RedeliveryString; ?><?php endif; ?>">
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="entry-edit-head">
+            <h4 class="icon-head fieldset-legend"><?php echo $this->__("Additional"); ?></h4>
+        </div>
+        <div class="fieldset">
+            <table class="form-list">
+                <tr>
+                    <td class="label"><label for="info_additional_info"><?php echo $this->__('Additional Information'); ?></label></td>
+                    <td class="value">
+                        <textarea class="input-text" id="info_additional_info" name="info[AdditionalInformation]" style="height:auto;resize:none;" rows="5"><?php if($form->info->AdditionalInformation): ?><?php echo $form->info->AdditionalInformation; ?><?php endif; ?></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="info_additional_documents"><?php echo $this->__('Additional Documents'); ?></label></td>
+                    <td class="value">
+                        <textarea class="input-text" id="info_additional_documents" name="info[AccompanyingDocuments]" style="height:auto;resize:none;" rows="5"><?php if($form->info->AccompanyingDocuments): ?><?php echo $form->info->AccompanyingDocuments; ?><?php endif; ?></textarea>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="text-align:right;">
+            <button type="button" class="button" onclick="submit(this)"><span><span><?php echo $this->__('Send'); ?></span></span></button>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    // var novaposhtaForm = new varienForm('novaposhta_form');
+</script>

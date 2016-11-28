@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<layout>
+    <!-- <adminhtml_sales_order_create_index>
+        <reference name="head">
+            <action method="addJs"><file>SY/admin.js</file></action>
+            <action method="addJs"><file>SY/novaposhta.js</file></action>
+            <action method="addJs"><file>SY/trick.js</file></action>
+        </reference>
+    </adminhtml_sales_order_create_index> -->
+	<adminhtml_sales_order_view>
+		<reference name="sales_order_tabs">
+			<action method="addTab">
+				<name>SY Novaposhta</name>
+				<block>sy_novaposhta/adminhtml_sales_order_tab</block>
+			</action>
+		</reference>
+	</adminhtml_sales_order_view>
+</layout>

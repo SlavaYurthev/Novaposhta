@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <default>
+        <reference name="head">
+            <!-- <action method="addJs"><file>SY/customer.js</file></action> -->
+            <action method="addJs"><file>SY/novaposhta.js</file></action>
+            <action method="addJs"><file>SY/trick.js</file></action>
+        </reference>
+    </default>
+</layout>
