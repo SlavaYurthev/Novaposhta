@@ -13,9 +13,10 @@ class SY_Novaposhta_AjaxController extends Mage_Core_Controller_Front_Action {
 		$helper = Mage::helper('sy_novaposhta');
 		$senderCity = Mage::app()->getWebsite()->getConfig('carriers/sy_novaposhta/sender_city');
 		$price = array(0, 0);
-		if($city = Mage::app()->getRequest()->getParam('value')){
-			$billing_address->setCity($city)->save();
-			$shipping_address->setCity($city)->save();
+		$city = Mage::app()->getRequest()->getParam('value');
+		$billing_address->setCity($city)->save();
+		$shipping_address->setCity($city)->save();
+		if($city){
 			$city = $helper->findCity($city);
 			if($city){
 				// $weight = $quote->getShippingAddress()->getWeight();
@@ -25,74 +26,135 @@ class SY_Novaposhta_AjaxController extends Mage_Core_Controller_Front_Action {
                 $price[1] = $helper->getCost($senderCity, $city['Ref'], "WarehouseDoors", $weight, $cost);
 			}
 		}
-		else{
-			$billing_address->setCity(false)->save();
-			$shipping_address->setCity(false)->save();
-		}
 		$price[0] = Mage::helper('core')->currency($price[0], true, false);
 		$price[1] = Mage::helper('core')->currency($price[1], true, false);
+		$quote = Mage::getSingleton('checkout/session')->getQuote();
+		$quote->getShippingAddress()->setCollectShippingRates(true);
+		$quote->getShippingAddress()->collectShippingRates();
+		$quote->setTotalsColl‌​ectedFlag(false); 
+		$quote->collectTotals(); 
+		$quote->save();
 		$this->getResponse()->setHeader('Content-type', 'application/json');
 		$this->getResponse()->setBody(json_encode(array($price)));
 	}
 	public function warehouseAction(){
-		if($ref = Mage::app()->getRequest()->getParam('ref')){
-			Mage::getSingleton('checkout/session')->getQuote()->setNovaposhtaWarehouse($ref)->save();
+		$ref = Mage::app()->getRequest()->getParam('ref');
+		$description = Mage::app()->getRequest()->getParam('description');
+		Mage::getSingleton('checkout/session')->getQuote()->setNovaposhtaWarehouse($ref)->save();
+		Mage::getSingleton('checkout/session')->getQuote()->setNovaposhtaDescription($description)->save();
+	}
+	public function streetAction(){
+		$ref = Mage::app()->getRequest()->getParam('ref');
+		$name = Mage::app()->getRequest()->getParam('name');
+		Mage::getSingleton('checkout/session')->getQuote()->setNovaposhtaStreet($ref)->save();
+		Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->setStreet($name)->save();
+		Mage::getSingleton('checkout/session')->getQuote()->getBillingAddress()->setStreet($name)->save();
+	}
+	public function houseAction(){
+		if(Mage::app()->getRequest()->getParam('mode') == 'update'){
+			Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()
+			->setHouse(Mage::app()->getRequest()->getParam('value'))->save();
+			Mage::getSingleton('checkout/session')->getQuote()->getBillingAddress()
+			->setHouse(Mage::app()->getRequest()->getParam('value'))->save();
 		}
-		else{
-			Mage::getSingleton('checkout/session')->getQuote()->setNovaposhtaWarehouse(false)->save();
+		$response = array('house'=>Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->getHouse());
+		$this->getResponse()->setHeader('Content-type', 'application/json');
+		$this->getResponse()->setBody(json_encode($response));
+	}
+	public function flatAction(){
+		if(Mage::app()->getRequest()->getParam('mode') == 'update'){
+			Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()
+			->setFlat(Mage::app()->getRequest()->getParam('value'))->save();
+			Mage::getSingleton('checkout/session')->getQuote()->getBillingAddress()
+			->setFlat(Mage::app()->getRequest()->getParam('value'))->save();
 		}
-		if($description = Mage::app()->getRequest()->getParam('description')){
-			Mage::getSingleton('checkout/session')->getQuote()->setNovaposhtaDescription($description)->save();
+		$response = array('flat'=>Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->getFlat());
+		$this->getResponse()->setHeader('Content-type', 'application/json');
+		$this->getResponse()->setBody(json_encode($response));
+	}
+	public function noteAction(){
+		if(Mage::app()->getRequest()->getParam('mode') == 'update'){
+			Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()
+			->setNote(Mage::app()->getRequest()->getParam('value'))->save();
+			Mage::getSingleton('checkout/session')->getQuote()->getBillingAddress()
+			->setNote(Mage::app()->getRequest()->getParam('value'))->save();
 		}
-		else{
-			Mage::getSingleton('checkout/session')->getQuote()->setNovaposhtaDescription(false)->save();
-		}
+		$response = array('note'=>Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->getNote());
+		$this->getResponse()->setHeader('Content-type', 'application/json');
+		$this->getResponse()->setBody(json_encode($response));
 	}
 	public function citiesAction(){
-		$cities = Mage::helper('sy_novaposhta')->getCities();
-		$html = "<option></option>";
-		if(count($cities)>0){
-			foreach ($cities as $city) {
-				$selected = "";
-				$customer = Mage::getSingleton('checkout/session');
-				if($city['Description'] == $customer->getQuote()->getShippingAddress()->getCity() || 
-					$city['DescriptionRu'] == $customer->getQuote()->getShippingAddress()->getCity()){
-					$selected = ' selected="selected" ';
-				}
-				$html .= "<option ref='".$city['Ref']."' ".'value="'.htmlentities($city['Description']).'"'.$selected.">".$city['Description']."</option>";
-			}
+		$layout = $this->getLayout();
+		$block = $layout->createBlock('sy_novaposhta/options');
+		$options = Mage::helper('sy_novaposhta')->getCities();
+		$block->setOptions($options);
+		$block->setValues(array('Description'));
+		$block->setAttributes(array('ref'=>'Ref'));
+		$block->setInners(array('Description'));
+		if($selected = $this->getRequest()->getParam('selected')){
+			$block->setSelected($selected);
 		}
-		print_r($html);
+		elseif($this->getRequest()->getParam('area') != 'admin'){
+			$block->setSelected(Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->getCity());
+		}
+		$block->setTemplate('SY/novaposhta/options.phtml');
+		echo $block->toHtml();
 	}
 	public function warehousesAction(){
-		$warehouses = Mage::helper('sy_novaposhta')->findWarehouses(Mage::app()->getRequest()->getParam('ref'));
-		$html = "<option></option>";
-		if(count($warehouses)>0 && Mage::app()->getRequest()->getParam('ref')){
-			foreach ($warehouses as $warehouse) {
-				$html .= "<option value='".htmlentities($warehouse['Description'])."'";
-				if(Mage::app()->getRequest()->getParam('warehouse') == $warehouse['Ref'] || 
-					urldecode(Mage::app()->getRequest()->getParam('warehouse')) == $warehouse['Description'] ||
-					Mage::getSingleton('checkout/session')->getQuote()->getNovaposhtaWarehouse() == $warehouse['Ref']){
-					$html .= 'selected="selected"';
+		$layout = $this->getLayout();
+		$block = $layout->createBlock('sy_novaposhta/options');
+		if($ref = Mage::app()->getRequest()->getParam('ref')){
+			$options = Mage::helper('sy_novaposhta')->findWarehouses($ref);
+			$block->setOptions($options);
+			$block->setAttributes(array('ref'=>'Ref'));
+			$block->setValues(array('Description'));
+			$block->setInners(array('Description'));
+			if($selected = $this->getRequest()->getParam('selected')){
+				$block->setSelected($selected);
+			}
+			// Session value only for non-admin area !
+			elseif($this->getRequest()->getParam('area') != 'admin'){
+				if($selected = Mage::getSingleton('checkout/session')->getQuote()->getNovaposhtaWarehouse()){
+					$block->setSelected($selected);
 				}
-				$html .= " ref='".htmlentities($warehouse['Ref'])."'";
-				$html .= ">".$warehouse['Description']."</option>";
 			}
 		}
-		echo $html;
+		$block->setTemplate('SY/novaposhta/options.phtml');
+		echo $block->toHtml();
+	}
+	public function streetsAction(){
+		$layout = $this->getLayout();
+		$block = $layout->createBlock('sy_novaposhta/options');
+		if($ref = Mage::app()->getRequest()->getParam('ref')){
+			$options = Mage::helper('sy_novaposhta')->findStreets($ref);
+			$block->setOptions($options);
+			$block->setAttributes(array('ref'=>'Ref'));
+			$block->setValues(array('Description'));
+			$block->setInners(array('Description','StreetsType'));
+			if($selected = $this->getRequest()->getParam('selected')){
+				$block->setSelected($selected);
+			}
+			// Session value only for non-admin area !
+			elseif($this->getRequest()->getParam('area') != 'admin'){
+				if($selected = Mage::getSingleton('checkout/session')->getQuote()->getNovaposhtaStreet()){
+					$block->setSelected($selected);
+				}
+			}
+		}
+		$block->setTemplate('SY/novaposhta/options.phtml');
+		echo $block->toHtml();
 	}
 	public function intervalsAction(){
-		$intervals = Mage::helper('sy_novaposhta')->getTimeIntervals(Mage::app()->getRequest()->getParam('ref'));
-		$html = "<option></option>";
-		if(count($intervals)>0){
-			foreach ($intervals as $interval) {
-				$html .= "<option value='".$interval['Number']."'";
-				if(Mage::app()->getRequest()->getParam('selected') == $interval['Number']){
-					$html .= " selected='selected' ";
-				}
-				$html .= ">".$interval['Start']."-".$interval['End']."</option>";
-			}
+		$layout = $this->getLayout();
+		$block = $layout->createBlock('sy_novaposhta/options');
+		if($ref = $this->getRequest()->getParam('ref')){
+			$options = Mage::helper('sy_novaposhta')->getTimeIntervals($ref);
+			$block->setOptions($options);
+			$block->setValues(array('Number'));
+			$block->setInners(array('Start','End'));
+			$block->setSelected($this->getRequest()->getParam('selected'));
 		}
-		echo $html;
+		$block->setTemplate('SY/novaposhta/options.phtml');
+		echo $block->toHtml();
 	}
 }

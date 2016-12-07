@@ -2,18 +2,29 @@
 <config>
     <modules>
         <SY_Novaposhta>
-            <version>0.1.0</version>
+            <version>0.1.4</version>
         </SY_Novaposhta>
     </modules>
     <global>
         <fieldsets>
-            <sales_convert_quote>                          
+            <sales_convert_quote>
                 <novaposhta_warehouse><to_order>*</to_order></novaposhta_warehouse>
+                <novaposhta_street><to_order>*</to_order></novaposhta_street>
             </sales_convert_quote>
-
-            <sales_convert_order>                                             
+            <sales_convert_quote_address>
+                <house><to_order_address>*</to_order_address></house>
+                <flat><to_order_address>*</to_order_address></flat>
+                <note><to_order_address>*</to_order_address></note>
+            </sales_convert_quote_address>
+            <sales_convert_order>
                 <novaposhta_warehouse><to_quote>*</to_quote></novaposhta_warehouse>
+                <novaposhta_street><to_quote>*</to_quote></novaposhta_street>
             </sales_convert_order>
+            <sales_convert_order_address>
+                <house><to_quote_address>*</to_quote_address></house>
+                <flat><to_quote_address>*</to_quote_address></flat>
+                <note><to_quote_address>*</to_quote_address></note>
+            </sales_convert_order_address>
         </fieldsets>
         <models>
             <sy_novaposhta>
@@ -29,6 +40,9 @@
                     <sy_novaposhta_warehouses>
                         <table>sy_novaposhta_warehouses</table>
                     </sy_novaposhta_warehouses>
+                    <sy_novaposhta_streets>
+                        <table>sy_novaposhta_streets</table>
+                    </sy_novaposhta_streets>
                 </entities>
             </sy_novaposhta_resource>
         </models>
@@ -146,10 +160,17 @@
 	                    		<action>adminhtml/novaposhta_index/cities</action>
 	                    	</cities>
 	                    </children>
+                        <children>
+                            <streets translate="title" module="sy_novaposhta">
+                                <title>Streets</title>
+                                <sort_order>2</sort_order>
+                                <action>adminhtml/novaposhta_index/streets</action>
+                            </streets>
+                        </children>
 	                    <children>
 	                    	<warehouses translate="title" module="sy_novaposhta">
 	                    		<title>Warehouses</title>
-	                    		<sort_order>2</sort_order>
+	                    		<sort_order>3</sort_order>
 	                    		<action>adminhtml/novaposhta_index/warehouses</action>
 	                    	</warehouses>
 	                    </children>
@@ -173,7 +194,7 @@
                     <config_path>carriers/sy_novaposhta/update_cron</config_path>
                 </schedule>
                 <run>
-                    <model>sy_novaposhta/observer::downloadCitiesAndWarehouses</model>
+                    <model>sy_novaposhta/observer::downloadData</model>
                 </run>
             </sy_novaposhta_download_cities_and_warehouses>
             <sy_novaposhta_update_cities_and_warehouses>
@@ -181,7 +202,7 @@
                     <cron_expr>* * * * *</cron_expr>
                 </schedule>
                 <run>
-                    <model>sy_novaposhta/observer::updateCitiesAndWarehouses</model>
+                    <model>sy_novaposhta/observer::updateData</model>
                 </run>
             </sy_novaposhta_update_cities_and_warehouses>
         </jobs>

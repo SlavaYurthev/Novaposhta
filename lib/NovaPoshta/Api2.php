@@ -871,9 +871,14 @@ class NovaPoshta_Api2 {
 			$recipient['Recipient'] = $recipientCounterparty['data'][0]['Ref'];
 			$recipient['ContactRecipient'] = $recipientCounterparty['data'][0]['ContactPerson']['data'][0]['Ref'];
 		}
-		// Zend_Debug::dump($recipient);
-		// Full params is merge of arrays $sender, $recipient, $params
+		// if doors type rewrite recipient_address
+		if($params['ServiceType'] == "WarehouseDoors" || $params['ServiceType'] == "DoorsDoors"){
+			$address = $this->getAddress($recipient);
+			$recipient['RecipientAddress'] = @$address['data'][0]['Ref'];
+		}
+
 		$paramsInternetDocument = array_merge($sender, $recipient, $params);
+
 		// Creating new Internet Document
 		if($ref == false){
 			return $this->model('InternetDocument')->save($paramsInternetDocument);
@@ -882,6 +887,24 @@ class NovaPoshta_Api2 {
 			$paramsInternetDocument['Ref'] = $ref;
 			return $this->model('InternetDocument')->update($paramsInternetDocument);
 		}
+	}
+	function getAddress($recipient){
+		$params['CounterpartyRef'] = $recipient['Recipient'];
+		$params['StreetRef'] = $recipient['StreetRef'];
+		$params['BuildingNumber'] = $recipient['House'];
+		if(isset($recipient['Flat']) && (bool)$recipient['Flat'] !== false){
+			$params['Flat'] = $recipient['Flat'];
+		}
+		if(isset($recipient['Note']) && (bool)$recipient['Note'] !== false){
+			$params['Note'] = $recipient['Note'];
+		}
+		$response = $this->model('Address')->method('save')->params($params)->execute();
+		if(isset($response['errors']) && count($response['errors'])>0){
+			foreach ($response['errors'] as $error) {
+				Mage::getSingleton('adminhtml/session')->addError($error);
+			}
+		}
+		return $response;
 	}
 	function deleteInternetDocument($ref) {
 		return $this->model('InternetDocument')->delete(array('DocumentRefs'=>array($ref)));

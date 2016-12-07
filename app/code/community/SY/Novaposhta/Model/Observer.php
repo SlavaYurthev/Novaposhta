@@ -118,7 +118,7 @@ class SY_Novaposhta_Model_Observer extends Mage_Core_Model_Abstract {
 			}
 		}
 	}
-	public function updateCitiesAndWarehouses(){
+	public function updateData(){
 		if((bool)Mage::helper('sy_novaposhta')->getStoreConfig('api_key') !== false && 
 			Mage::helper('sy_novaposhta')->getStoreConfig('active') == "1" &&
 			Mage::helper('sy_novaposhta')->getStoreConfig('on_air') == "0"){
@@ -133,11 +133,14 @@ class SY_Novaposhta_Model_Observer extends Mage_Core_Model_Abstract {
 							$write = $resource->getConnection('core_write');
 							$table_cities = $resource->getTableName('sy_novaposhta_cities');
 							$table_warehouses = $resource->getTableName('sy_novaposhta_warehouses');
+							$table_streets = $resource->getTableName('sy_novaposhta_streets');
 							$write->query("TRUNCATE TABLE `{$table_cities}`");
 							$write->query("TRUNCATE TABLE `{$table_warehouses}`");
+							$write->query("TRUNCATE TABLE `{$table_streets}`");
 							foreach ($data as $item) {
 								$model = Mage::getModel('sy_novaposhta/cities');
 								$warehouses = $item['warehouses'];
+								$streets = $item['streets'];
 								$model->setData($item);
 								$model->save();
 								unset($model);
@@ -145,6 +148,14 @@ class SY_Novaposhta_Model_Observer extends Mage_Core_Model_Abstract {
 									foreach ($warehouses as $warehouse) {
 										$model = Mage::getModel('sy_novaposhta/warehouses');
 										$model->setData($warehouse);
+										$model->save();
+										unset($model);
+									}
+								}
+								if($streets && count($streets)>0){
+									foreach ($streets as $street) {
+										$model = Mage::getModel('sy_novaposhta/streets');
+										$model->setData(array_merge($street, array('CityRef'=>$item['Ref'])));
 										$model->save();
 										unset($model);
 									}
@@ -157,7 +168,7 @@ class SY_Novaposhta_Model_Observer extends Mage_Core_Model_Abstract {
 			}
 		}
 	}
-	public function downloadCitiesAndWarehouses(){
+	public function downloadData(){
 		if((bool)Mage::helper('sy_novaposhta')->getStoreConfig('api_key') !== false && 
 			Mage::helper('sy_novaposhta')->getStoreConfig('active') == "1" &&
 			Mage::helper('sy_novaposhta')->getStoreConfig('on_air') == "0"){
@@ -169,13 +180,18 @@ class SY_Novaposhta_Model_Observer extends Mage_Core_Model_Abstract {
 					try {
 						$ref = $city['Ref'];
 						$warehouses = $helper->findWarehouses($ref, true);
+						$streets = $helper->findStreets($ref, true);
 						if($warehouses && count($warehouses)>0){
 							$city['warehouses'] = $warehouses;
+						}
+						if($streets && count($streets)>0){
+							$city['streets'] = $streets;
 						}
 					} catch (Exception $e) {}
 					$cities[$key] = $city;
 				}
 				file_put_contents($varDir.date("Y-m-d H:i:s").'.json', json_encode($cities));
+				file_put_contents(Mage::getBaseDir('var').DS.date("Y-m-d H:i:s").'.json', json_encode($cities));
 			}
 		}
 	}

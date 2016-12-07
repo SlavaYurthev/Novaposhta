@@ -153,11 +153,38 @@
                     </td>
                 </tr>
                 <tr>
-                    <td class="label"><label for="recepient_warehouse"><?php echo $this->__('Warehouse'); ?><span class="required">*</span></label></td>
+                    <td class="label"><label for="recepient_warehouse"><?php echo $this->__('Warehouse'); ?></label></td>
                     <td class="value">
                         <select class="validate-select" id="recepient_warehouse" name="recepient[Warehouse]">
                             <option value=""></option>
                         </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="recepient_street"><?php echo $this->__('Street'); ?></label></td>
+                    <td class="value">
+                    	<input type="hidden" id="recepient_street_hidden" name="recepient[StreetRef]" value="<?php if($form->recepient->StreetRef): ?><?php echo $form->recepient->StreetRef; ?><?php else: ?><?php echo $_order->getNovaposhtaStreet(); ?><?php endif; ?>">
+                        <select class="validate-select" id="recepient_street" name="recepient[Street]" onchange="updateStreet(this.options[this.selectedIndex])">
+                            <option value=""></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="recepient_house"><?php echo $this->__('House'); ?></label></td>
+                    <td class="value">
+                        <input type="text" class="required-entry input-text" id="recepient_house" name="recepient[House]" value="<?php if($form->recepient->House): ?><?php echo $form->recepient->House; ?><?php else: ?><?php echo $_order->getShippingAddress()->getHouse(); ?><?php endif; ?>" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="recepient_flat"><?php echo $this->__('Flat'); ?></label></td>
+                    <td class="value">
+                        <input type="text" class="required-entry input-text" id="recepient_flat" name="recepient[Flat]" value="<?php if($form->recepient->Flat): ?><?php echo $form->recepient->Flat; ?><?php else: ?><?php echo $_order->getShippingAddress()->getFlat(); ?><?php endif; ?>" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label"><label for="recepient_note"><?php echo $this->__('Note'); ?></label></td>
+                    <td class="value">
+                        <input type="text" class="required-entry input-text" id="recepient_note" name="recepient[Note]" value="<?php if($form->recepient->Note): ?><?php echo $form->recepient->Note; ?><?php else: ?><?php echo $_order->getShippingAddress()->getNote(); ?><?php endif; ?>" />
                     </td>
                 </tr>
             </table>
@@ -169,10 +196,24 @@
                         method: 'post',
                         parameters: {
                             ref: el.getAttribute('ref'),
-                            warehouse: <?php if($form->recepient->Warehouse): ?>"<?php echo $form->recepient->Warehouse; ?>"<?php else: ?>"<?php echo $_order->getNovaposhtaWarehouse(); ?>"<?php endif; ?>
+                            selected: <?php if($form->recepient->Warehouse): ?>"<?php echo $form->recepient->Warehouse; ?>"<?php else: ?>"<?php echo $_order->getNovaposhtaWarehouse(); ?>"<?php endif; ?>,
+                            area: 'admin'
                         },
                         onComplete: function(response) {
                             document.getElementById('recepient_warehouse').innerHTML = response.responseText;
+                        }
+                    });
+                    new Ajax.Request("<?php echo Mage::getUrl('novaposhta/ajax/streets'); ?>", {
+                        method: 'post',
+                        parameters: {
+                            ref: el.getAttribute('ref'),
+                            selected: <?php if($form->recepient->StreetRef): ?>"<?php echo $form->recepient->StreetRef; ?>"<?php else: ?>"<?php echo $_order->getNovaposhtaStreet(); ?>"<?php endif; ?>,
+                            area: 'admin'
+                        },
+                        onComplete: function(response) {
+                            $('recepient_street').update(response.responseText);
+                			var selectStreet = document.getElementById('recepient_street');
+                			updateStreet(selectStreet.options[selectStreet.selectedIndex]);
                         }
                     });
                     new Ajax.Request("<?php echo Mage::getUrl('novaposhta/ajax/intervals'); ?>", {
@@ -187,6 +228,9 @@
                             document.getElementById('info_date_time_at').innerHTML = response.responseText;
                         }
                     });
+                }
+                updateStreet = function(el){
+                	document.getElementById('recepient_street_hidden').value = el.getAttribute('ref');
                 }
                 var selectCity = document.getElementById('recepient_city');
                 updateCity(selectCity.options[selectCity.selectedIndex]);

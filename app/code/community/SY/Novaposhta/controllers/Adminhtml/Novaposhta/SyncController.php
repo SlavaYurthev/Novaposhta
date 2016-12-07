@@ -24,6 +24,11 @@ class SY_Novaposhta_Adminhtml_Novaposhta_SyncController extends Mage_Adminhtml_C
                     $order->save();
                 } catch (Exception $e) {}
             }
+            // Zend_Debug::dump($params);
+            // exit;
+            // if($params['info']['ServiceType'] == "WarehouseDoors" || $params['info']['ServiceType'] == "DoorsDoors"){
+            //     $params['recepient']['Street'];
+            // }
             $params['recepient']['Region'] = "";
             $params['recepient']['Phone'] = preg_replace("/[^0-9]/", '', $params['recepient']['Phone']);
             foreach (range(1, $params['info']['SeatsAmount']) as $key => $value) {

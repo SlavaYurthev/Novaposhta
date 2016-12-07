@@ -1,0 +1,22 @@
+<option <?php if(!$this->getSelected()): ?>selected="selected"<?php endif; ?>></option>
+<?php if($this->getOptions() && count($this->getOptions())>0): ?>
+	<?php foreach($this->getOptions() as $option): ?>
+		<option
+			value="<?php echo $this->getValue($option); ?>"
+			<?php if($this->getAttributes() && count($this->getAttributes())>0): ?>
+				<?php foreach($this->getAttributes() as $code => $value): ?>
+					<?php echo $code; ?>="<?php echo htmlentities($option[$value]); ?>"
+				<?php endforeach; ?>
+			<?php endif; ?>
+			<?php if($this->getValue($option) == $this->getSelected() || $this->getInner($option) == $this->getSelected()): ?>
+				selected="selected"
+			<?php elseif(isset($option['Ref']) && (bool)$option['Ref'] !== false && $option['Ref'] == $this->getSelected()): ?>
+				selected="selected"
+			<?php elseif(isset($option['Description']) && (bool)$option['Description'] !== false && $option['Description'] == $this->getSelected()): ?>
+				selected="selected"
+			<?php elseif(isset($option['DescriptionRu']) && (bool)$option['DescriptionRu'] !== false && $option['DescriptionRu'] == $this->getSelected()): ?>
+				selected="selected"
+			<?php endif; ?>
+		><?php echo trim($this->getInner($option)); ?></option>
+	<?php endforeach; ?>
+<?php endif; ?>

@@ -55,6 +55,31 @@ class SY_Novaposhta_Helper_Data extends Mage_Core_Helper_Data {
         }
 		return $data;
 	}
+    public function findStreets($cityRef, $api = false){
+        $data = array();
+        $streets = false;
+        $page = 1;
+        if($api == true || $this->getStoreConfig('on_air') == "1"){
+            do {
+                $streets = Mage::getSingleton('sy_novaposhta/api_client')->getConnection()->getStreet($cityRef, '', $page);
+                if(isset($streets['data']) && count($streets['data'])>0){
+                    $data = array_merge($data, $streets['data']);
+                    $page++;
+                }
+                else{
+                    $streets = false;
+                }
+            } while ($streets);
+        }
+        else{
+            $streets = Mage::getModel('sy_novaposhta/streets')->getCollection();
+            $streets->addFieldToFilter('CityRef',$cityRef);
+            if($streets->count()>0){
+                $data = array_merge($data, $streets->toArray()['items']);
+            }
+        }
+        return $data;
+    }
 	public function getCost($citySender, $cityRecipient, $serviceType, $weight, $cost){
         $default = 0;
 		$response = Mage::getSingleton('sy_novaposhta/api_client')->getConnection()->getDocumentPrice($citySender, $cityRecipient, $serviceType, $weight, $cost);
@@ -109,6 +134,15 @@ class SY_Novaposhta_Helper_Data extends Mage_Core_Helper_Data {
     public function getServiceTypes(){
     	$response = Mage::getSingleton('sy_novaposhta/api_client')->getConnection()->getServiceTypes();
         if (isset($response['success']) && $response['success'] == true) {
+            // В процессе подключения адрессных доставок адрес в качестве отправления имеет низкий приоритет
+            // и поэтому пока задисейблен и будет как только так сразу или по запросу
+            if(count($response['data'])>0){
+                foreach ($response['data'] as $key => $value) {
+                    if($value['Ref'] == 'DoorsWarehouse' || $value['Ref'] == 'DoorsDoors'){
+                        unset($response['data'][$key]);
+                    }
+                }
+            }
         	return $response['data'];
         }
     }
