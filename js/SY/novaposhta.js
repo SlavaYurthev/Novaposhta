@@ -185,7 +185,7 @@ novaposhta.update.city = function(option){
 				else{
 					$('novaposhta_streets').up().hide();
 				}
-				novaposhta.update.street($('novaposhta_streets').options[$('novaposhta_streets').selectedIndex]);
+				novaposhta.update.street($('novaposhta_streets').options[$('novaposhta_streets').selectedIndex], true);
 			}
 		}
 	});
@@ -213,14 +213,24 @@ novaposhta.update.warehouse = function(option){
 	    }
 	});
 }
-novaposhta.update.street = function(option){
-	new Ajax.Request(novaposhta_controller+'street', {
-	    method: 'post',
-	    parameters: {
-	        ref: option.getAttribute('ref'),
-	        name: option.getAttribute('value')
-	    }
-	});
+novaposhta.update.street = function(option, safe){
+	// safe mode = without ajax, only handler events
+	// without already street sets clean
+	if( typeof safe == 'undefined' || safe != true ){
+		new Ajax.Request(novaposhta_controller+'street', {
+		    method: 'post',
+		    parameters: {
+		        ref: option.getAttribute('ref'),
+		        name: option.getAttribute('value')
+		    }
+		});
+		if($('billing:street1') != undefined){
+			$('billing:street1').setValue($('novaposhta_streets').getValue());
+		}
+		if($('shipping:street1') != undefined){
+			$('shipping:street1').setValue($('novaposhta_streets').getValue());
+		}
+	}
 	if(option.getAttribute('value') != null){
 		if($('s_method_sy_novaposhta_type_WarehouseDoors').checked){
 			novaposhta.dropdown.house.show();
@@ -235,12 +245,6 @@ novaposhta.update.street = function(option){
 		novaposhta.dropdown.house.hide();
 		novaposhta.dropdown.flat.hide();
 		novaposhta.dropdown.note.hide();
-	}
-	if($('billing:street1') != undefined){
-		$('billing:street1').setValue($('novaposhta_streets').getValue());
-	}
-	if($('shipping:street1') != undefined){
-		$('shipping:street1').setValue($('novaposhta_streets').getValue());
 	}
 }
 novaposhta.update.house = function(input, mode){
