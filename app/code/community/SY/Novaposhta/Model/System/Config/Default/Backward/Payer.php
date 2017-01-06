@@ -13,7 +13,7 @@ class SY_Novaposhta_Model_System_Config_Default_Backward_Payer
         if((bool)$helper->getStoreConfig('api_key') !== false && 
             $helper->getStoreConfig('active') == "1"){
             $options[] = array('value'=>'Sender','label'=>$helper->__('Sender'));
-            $options[] = array('value'=>'Recepient','label'=>$helper->__('Recepient'));
+            $options[] = array('value'=>'Recipient','label'=>$helper->__('Recipient'));
         }
         return $options;
     }

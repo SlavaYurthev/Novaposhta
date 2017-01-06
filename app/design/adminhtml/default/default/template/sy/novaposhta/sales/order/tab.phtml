@@ -8,7 +8,7 @@
 <?php $_order = $this->getOrder(); ?>
 <?php $cities = $this->getCities(); ?>
 <?php $helper = Mage::helper('sy_novaposhta'); ?>
-<?php $recepientCityRef = $this->getRecepientCityRef(); ?>
+<?php $recepientCityRef = $this->getRecipientCityRef(); ?>
 <?php $form = json_decode($_order->getNovaposhtaFormData()); ?>
 <div class="entry-edit">
     <form id="novaposhta_form" method="post" action="<?php echo Mage::helper("adminhtml")->getUrl("adminhtml/novaposhta_sync/update"); ?>">
@@ -109,7 +109,7 @@
             </table>
         </div>
         <div class="entry-edit-head">
-            <h4 class="icon-head fieldset-legend"><?php echo $this->__("Recepient"); ?></h4>
+            <h4 class="icon-head fieldset-legend"><?php echo $this->__("Recipient"); ?></h4>
         </div>
         <div class="fieldset">
             <table class="form-list">
@@ -343,7 +343,7 @@
                     <td class="value">
                         <select class="validate-select" id="info_payertype" name="info[PayerType]">
                             <option value="Sender" <?php if($form->info->PayerType == "Sender"): ?>selected="selected"<?php elseif(!$form->info->PayerType && $helper->getStoreConfig('default_payer_type') == 'Sender'): ?>selected="selected"<?php endif; ?>><?php echo $this->__('Sender'); ?></option>
-                            <option value="Recepient" <?php if($form->info->PayerType == "Recepient"): ?>selected="selected"<?php elseif(!$form->info->PayerType && $helper->getStoreConfig('default_payer_type') == 'Recepient'): ?>selected="selected"<?php endif; ?>><?php echo $this->__('Recepient'); ?></option>
+                            <option value="Recipient" <?php if($form->info->PayerType == "Recipient"): ?>selected="selected"<?php elseif(!$form->info->PayerType && $helper->getStoreConfig('default_payer_type') == 'Recipient'): ?>selected="selected"<?php endif; ?>><?php echo $this->__('Recipient'); ?></option>
                         </select>
                     </td>
                 </tr>
@@ -445,7 +445,7 @@
                         <select class="validate-select" id="info_backwarddeliverydata_payertype" name="info[BackwardDeliveryData][PayerType]">
                             <option value=""></option>
                             <option value="Sender" <?php if($form->info->BackwardDeliveryData->PayerType == "Sender"):?>selected="selected"<?php elseif(!$form->info->BackwardDeliveryData->PayerType && $helper->getStoreConfig('default_backward_delivery_payer_type') == 'Sender'): ?>selected="selected"<?php endif; ?>><?php echo $this->__('Sender'); ?></option>
-                            <option value="Recepient" <?php if($form->info->BackwardDeliveryData->PayerType == "Recepient"):?>selected="selected"<?php elseif(!$form->info->BackwardDeliveryData->PayerType && $helper->getStoreConfig('default_backward_delivery_payer_type') == 'Recepient'): ?>selected="selected"<?php endif; ?>><?php echo $this->__('Recepient'); ?></option>
+                            <option value="Recipient" <?php if($form->info->BackwardDeliveryData->PayerType == "Recipient"):?>selected="selected"<?php elseif(!$form->info->BackwardDeliveryData->PayerType && $helper->getStoreConfig('default_backward_delivery_payer_type') == 'Recipient'): ?>selected="selected"<?php endif; ?>><?php echo $this->__('Recipient'); ?></option>
                         </select>
                     </td>
                 </tr>

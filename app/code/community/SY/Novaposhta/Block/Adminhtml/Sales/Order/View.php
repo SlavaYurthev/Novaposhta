@@ -18,7 +18,7 @@ class SY_Novaposhta_Block_Adminhtml_Sales_Order_View extends Mage_Core_Block_Tem
 	public function getCities(){
 		return Mage::helper('sy_novaposhta')->getCities();
 	}
-	public function getRecepientCityRef(){
+	public function getRecipientCityRef(){
 		$city = $this->_order->getShippingAddress()->getCity();
 		$city = Mage::helper('sy_novaposhta')->findCity($city);
 		return @$city['Ref'];
